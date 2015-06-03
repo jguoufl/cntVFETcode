@@ -14,7 +14,8 @@ function [Ne_bias,Fn_bias,Id,Id_x,Id_y,Ge2D,J_TE1,J_TE2, Ge2D_T]=charge(Ec,Fn_bi
 %% Id: the source drain voltage
 %% Fn_bias: the quasi Fermi level computed using Ec and Ne_bias
 
-[GeDensity Ge2D J_TE1 J_TE2 Ge2D_T]=GTunnel(xg,yg,Ec_bias,Fn_bias1,phis,nu_row,nu_col,ny1,Rad,nx1);
+%%% comment: GTunnel needs to be redone for buried CNT in oxide
+%[GeDensity Ge2D J_TE1 J_TE2 Ge2D_T]=GTunnel(xg,yg,Ec_bias,Fn_bias1,phis,nu_row,nu_col,ny1,Rad,nx1);
 
 % GeDensity=100*GeDensity;
 % Ge2D=100*Ge2D;
@@ -110,7 +111,10 @@ for ii=1:length(ind_s)
 end
 
 %%%%%%%% solve for the electron density     
-Ne_bias=real(full(AA\(BB-GeDensity))); 
+%Ne_bias=real(full(AA\(BB-GeDensity))); 
+Ne_bias=real(full(AA\(BB)));   % to fix later for Tunnel Gen. May 15, JG
+Ge2D=[]; J_TE1=[]; J_TE2=[]; Ge2D_T=[];
+
 Id=0;
 Ne_2D=reshape(Ne_bias,Nx,Ny);       % convert to Ne_2D(x,y)
 Id_x=-q*(Ne_2D(2:Nx,1:Ny).*cx1-Ne_2D(1:(Nx-1),1:Ny).*cx2);

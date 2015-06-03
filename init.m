@@ -30,12 +30,11 @@ yg(1)=0;
 for ii=2:nu_row
     yg(ii)=sum(b(1:(ii-1)));
 end
-t_bot=yg(ny1+1);            % the actual bottom oxide thickness
+t_bot=yg(ny1+ny2+1);            % the actual bottom oxide thickness, Modified by JG May 15 for CNT in oxide
 t_top=yg(nu_row)-t_bot;     % the actual channel length (top layer thickness)
 yg=yg-t_bot;                % the oxide/channel interface as y=0
 C_x=0;                      % x positiono f the center of the CNT
 C_y=Dia/2+infs;             % y position of the center of the CNT, nm.   
-
 x1=Dia/2;
 x2=Lx/2;
 nx1=round(x1/sx0);
@@ -63,8 +62,8 @@ xg=xg-xg(nu_col)/2;
 nu_tot=nu_row*nu_col;
 bound(1)=1;
 bound(2)=nu_col;
-bound(3)=nu_col*ny1+1;
-bound(4)=nu_col*(ny1+1);
+bound(3)=nu_col*(ny1+ny2)+1;  % JG, May 15, CNT buried in oxide
+bound(4)=nu_col*(ny1+ny2+1);  % JG, May 15, CNT buried in oxide
 bound(5)=nu_tot-nu_col+1;
 bound(6)=nu_tot;
 %%%%%%%%%% compute the area of each node for the finite volumn method

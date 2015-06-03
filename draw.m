@@ -14,13 +14,13 @@ Ne_bias=Ne2D(:,:,Ng_step+1);
 Fn_bias=Fn2D(:,:,Ng_step+1);
 
 
-figure(71)
-semilogy(Ych*1e9,1e-6*Ge2D(:,ceil(nu_col/2)),'r','linewidth',[2])        %%%Generation Rate in unit of 1/cm^3/s, vertical direction
-xlabel('y (nm)','fontsize',[20])
-ylabel('G (1/cm^3/s)','fontsize',[20])
-set(gca,'linewidth',[2],'fontsize',[20])
-axis([ 0 50 1e5 1e28])
-%%%%%% the vacuum level along the vertical direction
+% figure(71)
+% semilogy(Ych*1e9,1e-6*Ge2D(:,ceil(nu_col/2)),'r','linewidth',[2])        %%%Generation Rate in unit of 1/cm^3/s, vertical direction
+% xlabel('y (nm)','fontsize',[20])
+% ylabel('G (1/cm^3/s)','fontsize',[20])
+% set(gca,'linewidth',[2],'fontsize',[20])
+% axis([ 0 50 1e5 1e28])
+% %%%%%% the vacuum level along the vertical direction
 figure(1)
 for ii_vg=1:(Ng_step+1)
     for ii_vd=1:(Nd_step+1)
@@ -99,27 +99,27 @@ ylabel('y [nm]','fontsize',[28]);
 surfU(figure(3),XId*1e9,YId*1e9,Idx_node);
 surfU(figure(31),XId*1e9,YId*1e9,Idy_node);
 
-%%%%%%% plot I-V characteristics
-Vg=Vg0:Vg_step:(Vg0+Ng_step*Vg_step);
-Vd=Vd0:Vd_step:(Vd0+Nd_step*Vd_step);
-figure(4)
-for ii_vd=1:(Nd_step+1)
-    plot(Vg,abs(Id(:,ii_vd)),'linewidth',[2]);
-    hold on
-end
-xlabel('V_G [V]','fontsize',[28]);
-ylabel('I_D [mA/cm^2]','fontsize',[28]);
-set(gca, 'fontsize',[20], 'linewidth',[2]);
-set(gca,'position',[0.15 0.20 0.74 0.70]);
-
-figure(5)
-for ii_vg=1:(Ng_step+1)
-    plot(Vd,Id(ii_vg,:),'linewidth',[2]);
-    hold on;
-end
-xlabel('V_D [V]','fontsize',[28]);
-ylabel('I_D [A/m]','fontsize',[28]);
-set(gca, 'fontsize',[20], 'linewidth',[2]);
-set(gca,'position',[0.15 0.20 0.74 0.70]);
-
-
+% %%%%%%% plot I-V characteristics
+% Vg=Vg0:Vg_step:(Vg0+Ng_step*Vg_step);
+% Vd=Vd0:Vd_step:(Vd0+Nd_step*Vd_step);
+% figure(4)
+% for ii_vd=1:(Nd_step+1)
+%     plot(Vg,abs(Id(:,ii_vd)),'linewidth',[2]);
+%     hold on
+% end
+% xlabel('V_G [V]','fontsize',[28]);
+% ylabel('I_D [mA/cm^2]','fontsize',[28]);
+% set(gca, 'fontsize',[20], 'linewidth',[2]);
+% set(gca,'position',[0.15 0.20 0.74 0.70]);
+% 
+% figure(5)
+% for ii_vg=1:(Ng_step+1)
+%     plot(Vd,Id(ii_vg,:),'linewidth',[2]);
+%     hold on;
+% end
+% xlabel('V_D [V]','fontsize',[28]);
+% ylabel('I_D [A/m]','fontsize',[28]);
+% set(gca, 'fontsize',[20], 'linewidth',[2]);
+% set(gca,'position',[0.15 0.20 0.74 0.70]);
+% 
+% 

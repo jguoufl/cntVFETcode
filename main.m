@@ -55,7 +55,10 @@ ind_cnt=find(ind_cnt);
 %%% ind_cnt for solving charge.m in the thin film region only, index should
 %%% refer to (bound(3)-1)
 ind_cnt=ind_cnt-(bound(3)-1);   % the index of the CNT with reference to the 1st node of the channel
-
+ind_cnt=ind_cnt(find(ind_cnt>0));  % only keep non negative indices
+if length(ind_cnt)==0
+    disp('no contact between the CNT and semiconductor channel')
+end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         %%% the initial guess as Laplace solution
@@ -93,11 +96,11 @@ ind_cnt=ind_cnt-(bound(3)-1);   % the index of the CNT with reference to the 1st
             sumGe_x(ii)=sum(Ge2D(ii,1:coloumnumber-1).*delta_x');          %%Total generation Tunneling+Thermionic
             sumGe_x_T(ii)=sum(Ge2D_T(ii,1:coloumnumber-1).*delta_x');      %%Tunneling generation
         end
-        sumGe=sum(sumGe_x.*delta_y');
-        sumGe_T=sum(sumGe_x_T.*delta_y');
+        %sumGe=sum(sumGe_x.*delta_y');
+        %sumGe_T=sum(sumGe_x_T.*delta_y');
         
-        Id_TE(ii_vg,ii_vd)=(1-sumGe_T/sumGe)*Id(ii_vg,ii_vd);
-        Id_T(ii_vg,ii_vd)=(sumGe_T/sumGe)*Id(ii_vg,ii_vd);        
+        %Id_TE(ii_vg,ii_vd)=(1-sumGe_T/sumGe)*Id(ii_vg,ii_vd);
+        %Id_T(ii_vg,ii_vd)=(sumGe_T/sumGe)*Id(ii_vg,ii_vd);        
         %%%End of calculate current component ratio%%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
         
