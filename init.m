@@ -30,11 +30,12 @@ yg(1)=0;
 for ii=2:nu_row
     yg(ii)=sum(b(1:(ii-1)));
 end
-t_bot=yg(ny1+ny2+1);            % the actual bottom oxide thickness, Modified by JG May 15 for CNT in oxide
+t_bot=yg(ny1+1);            % the actual bottom oxide thickness
 t_top=yg(nu_row)-t_bot;     % the actual channel length (top layer thickness)
 yg=yg-t_bot;                % the oxide/channel interface as y=0
 C_x=0;                      % x positiono f the center of the CNT
 C_y=Dia/2+infs;             % y position of the center of the CNT, nm.   
+
 x1=Dia/2;
 x2=Lx/2;
 nx1=round(x1/sx0);
@@ -62,20 +63,23 @@ xg=xg-xg(nu_col)/2;
 nu_tot=nu_row*nu_col;
 bound(1)=1;
 bound(2)=nu_col;
-bound(3)=nu_col*(ny1+ny2)+1;  % JG, May 15, CNT buried in oxide
-bound(4)=nu_col*(ny1+ny2+1);  % JG, May 15, CNT buried in oxide
+bound(3)=nu_col*ny1+1;
+bound(4)=nu_col*(ny1+1);
 bound(5)=nu_tot-nu_col+1;
 bound(6)=nu_tot;
 %%%%%%%%%% compute the area of each node for the finite volumn method
+
+%%%%%%%%% set up the parameters for the polymer channel
 vol=zeros(nu_tot,1);    % initialization
 count=0;                % initialization
+spacing=3e-10;          % the spacing between the CNT and the polymer
 for ii=2:(nu_col-1)
     for jj=(ceil(bound(4)/nu_col)):(nu_row-1)
-        if (sqrt((xg(ii)-C_x)^2+(yg(jj)-C_y)^2)>Rad)
-            ii_node=(jj-1)*nu_col+ii;
+        ii_node=(jj-1)*nu_col+ii;
+        vol(ii_node)=1/4*(a(ii-1)+a(ii))*(b(jj-1)+b(jj)); % volumn/tranverse length
+        if (sqrt((xg(ii)-C_x)^2+(yg(jj)-C_y)^2)>(Rad+spacing))    % exclude the CNT
             count=count+1;
-            ind_ch(count)=ii_node;  % record the channel node index
-            vol(ii_node)=1/4*(a(ii-1)+a(ii))*(b(jj-1)+b(jj)); % volumn/tranverse length
+            ind_ch(count)=ii_node;  % record the channel node index            
         end
     end
 end
@@ -163,6 +167,19 @@ for i_node=bound(5):bound(6)
     %Bb(i_node,1)=Ecd;  % drain b.c. set in the self cons. loop in main.m
 end
 
+%%%%% set up the vector that distribute the charge of the CNT to the grids
+Tv=zeros(nu_tot,1);
+N_pc=100;
+delt_sita=2*pi/N_pc;   
+for ii_pc=1:N_pc
+    sita=ii_pc*delt_sita;
+    x_pc=C_x+Dia/2*sin(sita); y_pc=C_y-Dia/2*cos(sita); %The position of the point charge
+    ind_x=find(hist(x_pc,xg)); ind_y=find(hist(y_pc,yg)); %The bot-left corner indecies
+    ind=nu_col*(ind_y-1)+ind_x;     % the vector index
+    Tv(ind)=Tv(ind)+(1/N_pc)/vol(ind);
+end  
+
+ind_C_cnt=nu_col*(find(hist(C_y,yg))-1)+find(hist(C_x,xg));
 
 %%%%%%%% the Dirichlet boundary conditions imposed inside the metallic tube 
 ind_cnt=zeros(bound(6),1);  % the position indices of the CNT
@@ -170,9 +187,9 @@ for ii=1:nu_col
     for jj=1:nu_row
         i_node=ii+nu_col*(jj-1);
         if (sqrt((xg(ii)-C_x)^2+(yg(jj)-C_y)^2)<=Rad)
-            L(i_node,:)=0; 
-            Ab(i_node,i_node)=1;
-            Bb(i_node,1)=Ecs;
+%            L(i_node,:)=0; 
+%            Ab(i_node,i_node)=1;
+%            Bb(i_node,1)=Ecs;
             ind_cnt(i_node)=1;
         end            
     end
@@ -180,7 +197,7 @@ end
 ind_cnt=find(ind_cnt);
 %%% ind_cnt for solving charge.m in the thin film region only, index should
 %%% refer to (bound(3)-1)
-ind_cnt=ind_cnt-(bound(3)-1);   % the index of the CNT with reference to the 1st node of the channel
+%ind_cnt=ind_cnt-(bound(3)-1);   % the index of the CNT with reference to the 1st node of the channel
 
 %%%%% the bottom gate node
 for i_node=bound(1):bound(2) 

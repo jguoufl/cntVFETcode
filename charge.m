@@ -1,7 +1,7 @@
 % 2D, unipolar drift-diffusion solver
 % Jing Guo, Purdue CELAB, 2006-09
 
-function [Ne_bias,Fn_bias,Id,Id_x,Id_y,Ge2D,J_TE1,J_TE2, Ge2D_T]=charge(Ec,Fn_bias_old,XI,YI,Vd,ind_s,mu,xg,yg,Ec_bias,Fn_bias1,phis,nu_row,nu_col,ny1,Rad,nx1)
+function [Ne_bias,Fn_bias,Id,Id_x,Id_y]=charge(Ec,Fn_bias_old,XI,YI,Vd,ind_s,mu)
 %%%%%%%% Input: 
 %% Ec(XI,YI): the 2D band profile in the channel region: the organic film
 %% in cluding the source defined by ind_s in the film
@@ -14,18 +14,13 @@ function [Ne_bias,Fn_bias,Id,Id_x,Id_y,Ge2D,J_TE1,J_TE2, Ge2D_T]=charge(Ec,Fn_bi
 %% Id: the source drain voltage
 %% Fn_bias: the quasi Fermi level computed using Ec and Ne_bias
 
-%%% comment: GTunnel needs to be redone for buried CNT in oxide
-%[GeDensity Ge2D J_TE1 J_TE2 Ge2D_T]=GTunnel(xg,yg,Ec_bias,Fn_bias1,phis,nu_row,nu_col,ny1,Rad,nx1);
-
-% GeDensity=100*GeDensity;
-% Ge2D=100*Ge2D;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %FUNDAMENTAL physical constants
 kBT=0.0259; 
 q=1.6e-19; 
 m0=9.1e-31;
 hbar=1.055e-34;
-Ne0=1e27;%2*(m0*kBT*q/(2*pi*hbar^2))^(3/2); % the charge density constant for 3D bulk material
+Ne0=1e27; %Ne0=2*(m0*kBT*q/(2*pi*hbar^2))^(3/2); % the charge density constant for 3D bulk material
 sx=diff(XI);    sy=diff(YI);
 %Ef=abs((Ec(1:(Np-1))-Ec(2:Np))./sx);
 %mu=1./(1/mu0+(1/vs)*Ef);   % field dependent mobility
@@ -33,7 +28,7 @@ Nx=length(XI);
 Ny=length(YI);
 
 %%%%% set the boundary conditions
-Ne_s=Ne0*fermi((0-Ec(ind_s(1)))/kBT,1,1/2);
+%Ne_s=Ne0*fermi((0-Ec(ind_s(1)))/kBT,1,1/2);
 Ne_d=Ne0*fermi((-Vd-Ec(Nx*Ny))/kBT,1,1/2);
 
 %%%% Initializeation
@@ -63,7 +58,7 @@ end
 %% set up the current continuity eqn: AX=B
 AA=sparse(Nx*Ny,Nx*Ny);
 BB=sparse(Nx*Ny,1);
-coef=1;     % the length normalization constant for the derivitive of current 1e-10
+coef=1e-10;     % the length normalization constant for the derivitive of current
 for ii_y=2:(Ny-1)
     for ii_x=2:(Nx-1)
         ind=(ii_y-1)*Nx+ii_x;
@@ -83,44 +78,35 @@ for ii_y=2:(Ny-1)
     ind_l=(ii_y-1)*Nx+ii_l;     % the left boundary
     AA(ind_l,ind_l)=-cx2(ii_l,ii_y);
     AA(ind_l,ind_l+1)=cx1(ii_l,ii_y);
-    GeDensity(ind_l)=0;
     ind_r=(ii_y-1)*Nx+ii_r;     % the right boundary
     AA(ind_r,ind_r)=cx1(ii_r-1,ii_y);
     AA(ind_r,ind_r-1)=-cx2(ii_r-1,ii_y);
-    GeDensity(ind_r)=0;
 end
 %% the top boundary (drain electrode): Direchlet b.c. for charge density
 for ind=(Nx*(Ny-1)+1):(Nx*Ny)
     AA(ind,ind)=1;
     BB(ind)=Ne_d;
-    GeDensity(ind)=0;
 end
 %% the bottom boundary (gate insulator): Neumann b.c. for Jy
 for ind=1:Nx
     AA(ind,ind)=-cy2(ind,1);
     AA(ind,ind+Nx)=cy1(ind,1);
-    GeDensity(ind)=0;
 end
 
 %% the CNT boundary (source electrode)
-for ii=1:length(ind_s)
-    AA(ind_s(ii),:)=sparse(1,Nx*Ny);
-    AA(ind_s(ii),ind_s(ii))=1;
-    BB(ind_s(ii))=Ne_s;
-    GeDensity(ind_s(ii))=0;
-end
+%for ii=1:length(ind_s)
+%    AA(ind_s(ii),:)=sparse(1,Nx*Ny);
+%    AA(ind_s(ii),ind_s(ii))=1;
+%    BB(ind_s(ii))=Ne_s;
+%end
 
 %%%%%%%% solve for the electron density     
-%Ne_bias=real(full(AA\(BB-GeDensity))); 
-Ne_bias=real(full(AA\(BB)));   % to fix later for Tunnel Gen. May 15, JG
-Ge2D=[]; J_TE1=[]; J_TE2=[]; Ge2D_T=[];
-
+Ne_bias=real(full(AA\BB)); 
 Id=0;
 Ne_2D=reshape(Ne_bias,Nx,Ny);       % convert to Ne_2D(x,y)
 Id_x=-q*(Ne_2D(2:Nx,1:Ny).*cx1-Ne_2D(1:(Nx-1),1:Ny).*cx2);
 Id_y=-q*(Ne_2D(1:Nx,2:Ny).*cy1-Ne_2D(1:Nx,1:(Ny-1)).*cy2);
-% Id=trapz(XI,Id_y(1:Nx,Ny-1));  
-Id=sum(Id_y(1:Nx,Ny-1));
+Id=trapz(XI,Id_y(1:Nx,Ny-1));    
 % the minus sign because the source-drain current is along -x direction
 Ec=reshape(Ec,Nx*Ny,1);       % get Ec(XI,YI)
 Fn_bias=kBT*anti_dummy(Ne_bias./Ne0,1,1/2)+Ec;

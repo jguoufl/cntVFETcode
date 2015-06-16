@@ -1,6 +1,9 @@
-The CNT-contacted vertical FET code
-Developed in the Computational Nanoelectronics Lab, UFL
-Ref. to W. Chen, A. Rinzler and J. Guo, "Modeling and Simulation of Carbon Nanotube-Semiconductor Heterojunction Vertical Transistors", J. Appl. Phys., vol. 113, p. 234501, 2013. 
-
-Initial version by Jing Guo
-Modified version by W. Chen
+ptcfet: the main file for simulation pentacene thin film transistor (TFT)
+poisson: the 2D non-linear Poisson solver
+charge: the 2D drift-diffusion (DD) solver
+Bern: the function to compute Schaffetter-Gummel discritization term in DD
+fermi: Fermi integral
+anti_dummy: anti fermi function for non-linear Poisson solver
+draw: visualization code
+gmapja: pcolor visualization code
+surfU: surface visualization code
